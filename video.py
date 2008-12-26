@@ -4,10 +4,11 @@ Take a YouTube or Vimeo URL and extract the ID, title, description and a thumbna
 
 import urllib2, simplejson, re
 from xml.dom import minidom
+#import thumbs
 
 #Regex should match any valid Vimeo video's URL
-VIMEO_URL = re.compile("(http://)?(www\.)?vimeo.com/(\d+)/?")   
-#Regex should match any valid YouTube video' URL
+VIMEO_URL = re.compile("(http://)?(www\.)?vimeo.com/(\d+)")   
+#Regex should match any valid YouTube video's URL
 YOUTUBE_URL = re.compile("(http://)?(www\.)?youtube.com/watch\?v=([-a-zA-Z0-9]+)")    
 
 
@@ -21,7 +22,8 @@ def get_single_node_value(node):
 class Video():
 
     def __init__(self):
-        pass        
+        pass
+
 
 class YouTube(Video):
 
@@ -57,12 +59,7 @@ class YouTube(Video):
 
         return title, description, thumb_url
         
-
     
-    def process_thumb(self, save_location):
-       pass 
-
-
 class Vimeo(Video):
 
     def __init__(self, url, save_location=""):
@@ -91,5 +88,4 @@ class Vimeo(Video):
             result = simplejson.load(urllib2.urlopen(thumb_url))
         except Exception:
             print result['Error']
-        return result[0]['title'], result[0]['caption'], result[0]['thumbnail_large'] #finish me
-        
+        return result[0]['title'], result[0]['caption'], result[0]['thumbnail_large'] 
