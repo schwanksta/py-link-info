@@ -9,7 +9,7 @@ from xml.dom import minidom
 #Regex should match any valid Vimeo video's URL
 VIMEO_URL = re.compile("(http://)?(www\.)?vimeo.com/(\d+)")   
 #Regex should match any valid YouTube video's URL
-YOUTUBE_URL = re.compile("(http://)?(www\.)?youtube.com/watch\?v=([-a-zA-Z0-9]+)")    
+YOUTUBE_URL = re.compile("(http://)?(www\.)?youtube.com/watch\?v=([-_a-zA-Z0-9]+)")    
 
 
 def get_single_node_value(node):
