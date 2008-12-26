@@ -28,8 +28,16 @@ class YouTube(Video):
     def __init__(self, url, save_location=""):
         self.url = url
         self.id = self.snip_id()
-        self.thumb = self.get_thumb()
-        self.title, self.description = self.load_data()
+        self.title, self.description, self.thumb_url = self.load_data()
+
+
+    def snip_id(self):
+        """
+        Returns a YouTube video ID from a video's URL
+        """
+        match = YOUTUBE_URL.search(self.url)
+
+        return match.groups()[-1]
 
 
     def load_data(self):
@@ -45,29 +53,10 @@ class YouTube(Video):
 
         title = get_single_node_value(doc.getElementsByTagName("title"))
         description = get_single_node_value(doc.getElementsByTagName("content"))
-
-        return title, description
-        
-
-    def snip_id(self):
-        """
-        Returns a YouTube video ID from a video's URL
-        """
-        match = YOUTUBE_URL.search(self.url)
-
-        return match.groups()[-1]
-
-
-    def get_thumb(self):
-        """
-        Takes a YouTube video ID and returns the thumbnail contents in a buffer, which can then be written to disk.
-        """
-
         thumb_url = "http://img.youtube.com/vi/%s/default.jpg" % (self.id)
-       
-        return thumb_url
-#        fh = urllib2.urlopen(thumb_url)
-#        return fh.read()
+
+        return title, description, thumb_url
+        
 
     
     def process_thumb(self, save_location):
@@ -79,7 +68,7 @@ class Vimeo(Video):
     def __init__(self, url, save_location=""):
         self.url = url
         self.id = self.snip_id()
-        self.title, self.description, self.thumb = self.load_data()
+        self.title, self.description, self.thumb_url = self.load_data()
 
     
     def snip_id(self):
