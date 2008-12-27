@@ -5,6 +5,7 @@ Take a YouTube or Vimeo URL and extract the ID, title, description and a thumbna
 import urllib2, simplejson, re, md5, cStringIO, urllib2
 from xml.dom import minidom
 from os import path
+from PIL import Image
 #import thumbs
 
 #Regex should match any valid Vimeo video's URL
@@ -56,12 +57,12 @@ class Video():
             if media_root[-1] != "/":
                 media_root += "/"
 
-        hashname = md5.new(self.thumb_url).digest()
+        hashname = md5.new(self.thumb_url).hexdigest()
 
         filename = save_location + hashname + ".jpg"
 
         if path.exists(filename):
-            self.thumb_url = media_root + hashname
+            self.thumb_url = media_root + hashname + ".jpg"
             return 1
 
         th = urllib2.urlopen(self.thumb_url)
@@ -69,6 +70,8 @@ class Video():
 
         background = Image.open(thumb) #now thumb implements seek(), etc.
         button = Image.open(playbutton)
+        width, height = button.size
+        background = background.resize((width, height), Image.ANTIALIAS)
         
         # get the alpha-channel (used for non-replacement)
         background = background.convert("RGBA")
@@ -78,7 +81,7 @@ class Video():
         background.paste(button, mask=a)
         background.save(filename)
         
-        self.thumb_url = media_root + hashname
+        self.thumb_url = media_root + hashname + ".jpg"
 
         return 0
 
