@@ -2,15 +2,16 @@
 Take a YouTube or Vimeo URL and extract the ID, title, description and a thumbnail.
 """
 
-import urllib2, simplejson, re
+import urllib2, simplejson, re, md5, cStringIO, urllib2
 from xml.dom import minidom
+from os import path
 #import thumbs
 
 #Regex should match any valid Vimeo video's URL
 VIMEO_URL = re.compile("(http://)?(www\.)?vimeo.com/(\d+)")   
+
 #Regex should match any valid YouTube video's URL
 YOUTUBE_URL = re.compile("(http://)?(www\.)?youtube.com/watch\?v=([-_a-zA-Z0-9]+)")    
-
 
 def get_single_node_value(node):
     """
@@ -38,12 +39,60 @@ class Video():
         return simplejson.JSONEncoder().encode(d)
 
 
+    def stamp_thumb(self, save_location, playbutton, media_root=""):
+        """
+        Takes a location and saves the video thumbnail there with a play button over it. 
+        File name is an MD5 has of self.thumb_url, and self.thumb_url is changed to the local name.
+        If the file already exists, the function silently changes self.thumb_url to it 
+        and does not try to add a button. 
+        """
+
+        if save_location[-1] != "/":
+            save_location += "/" 
+
+        if media_root == "":
+            media_root = save_location
+        else:
+            if media_location[-1] != "/":
+                media_location += "/"
+
+        hashname = md5.new(self.thumb_url).digest()
+
+        filename = save_location + hashname + ".jpg"
+
+        if path.exists(filename):
+            self.thumb_url = media_root + hashname
+            return 1
+
+        th = urllib2.urlopen(self.thumb_url)
+        thumb = cStringIO.StringIO(th.read()) # Constructs a StringIO object holding the thumbnail
+
+        background = Image.open(thumb) #now thumb implements seek(), etc.
+        button = Image.open(playbutton)
+        
+        # get the alpha-channel (used for non-replacement)
+        background = background.convert("RGBA")
+        r,g,b,a = button.split()
+        
+        # paste the frame button without replacing the alpha button of the button image
+        background.paste(button, mask=a)
+        background.save(filename)
+        
+        self.thumb_url = media_root + hashname
+
+        return 0
+
+
+
 class YouTube(Video):
 
     def __init__(self, url, save_location=""):
         self.url = url
         self.id = self.snip_id()
         self.title, self.description, self.thumb_url = self.load_data()
+
+        if save_location != "":
+            self.stamp_video(save_location)
 
 
     def snip_id(self):
@@ -71,8 +120,6 @@ class YouTube(Video):
         thumb_url = "http://img.youtube.com/vi/%s/default.jpg" % (self.id)
 
         return title, description, thumb_url
-
-
         
     
 class Vimeo(Video):
