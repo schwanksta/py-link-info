@@ -21,8 +21,21 @@ def get_single_node_value(node):
 
 class Video():
 
-    def __init__(self):
-        pass
+    def __init__(self, url, title, description, thumb_url, id):
+        self.url =  url
+        self.title = title
+        self.description = description
+        self.thumb_url = thumb_url
+        self.id = id
+
+    def json(self):
+        """
+        Returns a JSON representation of the object
+        """
+
+        d = dict(title=self.title, description=self.description, thumb_url=self.thumb_url, id=self.id)
+
+        return simplejson.JSONEncoder().encode(d)
 
 
 class YouTube(Video):
@@ -58,6 +71,8 @@ class YouTube(Video):
         thumb_url = "http://img.youtube.com/vi/%s/default.jpg" % (self.id)
 
         return title, description, thumb_url
+
+
         
     
 class Vimeo(Video):
