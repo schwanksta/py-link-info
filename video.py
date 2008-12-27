@@ -53,8 +53,8 @@ class Video():
         if media_root == "":
             media_root = save_location
         else:
-            if media_location[-1] != "/":
-                media_location += "/"
+            if media_root[-1] != "/":
+                media_root += "/"
 
         hashname = md5.new(self.thumb_url).digest()
 
